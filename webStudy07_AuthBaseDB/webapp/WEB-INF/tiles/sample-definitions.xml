@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN" "http://tiles.apache.org/dtds/tiles-config_3_0.dtd" >
+<tiles-definitions>
+<!-- 	definition name == logical view name -->
+  <definition name="super" template="/WEB-INF/views/template.jsp">
+  	<put-attribute name="preScript" value="/includee/preScript.jsp" />
+  	<put-attribute name="header" value="/includee/headerMenu.jsp"/>
+  	<put-attribute name="left" value="/includee/leftMenu.jsp"/>
+  	<put-attribute name="footer" value="/includee/footer.jsp"/>
+  	<put-attribute name="postScript" value="/includee/postScript.jsp" />  
+  </definition>
+  
+  <definition name="index" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/index.jsp"/>
+  </definition>
+  
+  <definition name="prod/*" extends="super" preparer="prodViewPreparer">
+  	<put-attribute name="content" value="/WEB-INF/views/prod/{1}.jsp"/>
+  </definition>
+  
+  <definition name="board/*" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/board/{1}.jsp"/>
+  </definition>
+  <definition name="member/*" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/member/{1}.jsp"/>
+  </definition>
+  <definition name="employee/*" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/employee/{1}.jsp"/>
+  </definition>
+  <definition name="buyer/*" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/buyer/{1}.jsp"/>
+  </definition>
+  <definition name="simple/form" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/simple/form.jsp"/>
+  </definition>
+  <definition name="security/authForm" extends="super">
+  	<put-attribute name="content" value="/WEB-INF/views/security/authForm.jsp"/>
+  </definition>
+  
+</tiles-definitions>

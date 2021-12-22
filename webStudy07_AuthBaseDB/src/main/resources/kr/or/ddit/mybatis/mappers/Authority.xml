@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.security.auth.dao.AuthorityDAO">
+	<select id="selectAllAuthorities" resultType="kr.or.ddit.security.auth.vo.AuthorityVO">
+		SELECT AUTHORITY, ROLE_NAME, DESCRIPTION, CREATE_DATE, MODIFY_DATE
+		FROM ROLES	
+	</select>
+	<select id="roleHierarchy" resultType="string">
+		SELECT CHILD_ROLE || '>' || PARENT_ROLE
+		FROM ROLES_HIERARCHY
+		START WITH CHILD_ROLE = 'ADMIN'
+		CONNECT BY PRIOR PARENT_ROLE = CHILD_ROLE
+	</select>
+</mapper>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.security.auth.dao.ResourceDAO">
+	<resultMap type="kr.or.ddit.security.auth.vo.ResourceVO" id="resourceMap" autoMapping="true">
+		<id property="resourceId" column="RESOURCE_ID"/>
+		<collection property="authorities" ofType="kr.or.ddit.security.auth.vo.AuthorityVO">
+			<constructor>
+				<idArg javaType="string" column="AUTHORITY"/>
+			</constructor>
+		</collection>
+	</resultMap>
+	
+	<select id="selectAllResources" resultMap="resourceMap">
+		SELECT
+		    A.RESOURCE_ID,    RESOURCE_NAME,    RESOURCE_PATTERN,
+		    HTTP_METHOD,    DESCRIPTION
+		    , AUTHORITY
+		    , LEVEL
+		FROM  SECURED_RESOURCES A LEFT OUTER JOIN SECURED_RESOURCES_ROLE B
+			  ON (A.RESOURCE_ID = B.RESOURCE_ID)
+		START WITH RESOURCE_PARENT IS NULL
+		CONNECT BY PRIOR A.RESOURCE_ID = RESOURCE_PARENT
+	</select>
+	
+	<select id="selectResourceListForAuthority" resultType="kr.or.ddit.security.auth.vo.ResourceVO" parameterType="string">
+		SELECT DISTINCT RESOURCE_ID
+		FROM SECURED_RESOURCES_ROLE
+		WHERE AUTHORITY IN (
+		SELECT PARENT_ROLE
+		    FROM ROLES_HIERARCHY
+		    START WITH CHILD_ROLE = #{authority}
+		    CONNECT BY PRIOR PARENT_ROLE = CHILD_ROLE
+		)
+		ORDER BY RESOURCE_ID
+	</select>
+	
+	<select id="selectAllSortedResources" resultMap="resourceMap">
+		SELECT
+		    A.RESOURCE_ID,    RESOURCE_NAME,    RESOURCE_PATTERN,
+		    HTTP_METHOD,    DESCRIPTION, SORT_ORDER
+		    , AUTHORITY
+		FROM  SECURED_RESOURCES A LEFT OUTER JOIN SECURED_RESOURCES_ROLE B
+			  ON (A.RESOURCE_ID = B.RESOURCE_ID)
+		ORDER BY SORT_ORDER, RESOURCE_ID	  
+	</select>
+	
+	<delete id="deleteResourceRole" parameterType="kr.or.ddit.security.auth.vo.AuthorityVO">
+		DELETE FROM SECURED_RESOURCES_ROLE
+		WHERE AUTHORITY = #{authority}
+	</delete>
+	
+	<insert id="insertResourceRole" parameterType="kr.or.ddit.security.auth.vo.AuthorityVO">
+		INSERT ALL
+		<foreach collection="resourceId" item="resId">
+			INTO SECURED_RESOURCES_ROLE (RESOURCE_ID, AUTHORITY)
+			VALUES (#{resId}, #{authority})
+		</foreach>
+		SELECT * FROM DUAL
+	</insert>
+</mapper>

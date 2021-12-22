@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.buyer.dao.BuyerDAO">
+	<resultMap type="BuyerVO" id="buyerMap" autoMapping="true">
+		<id property="buyerId" column="BUYER_ID"/>
+		<collection property="prodList" ofType="ProdVO" autoMapping="true">
+			<id property="prodId" column="PROD_ID"/>
+		</collection>		
+	</resultMap>
+	<select id="selectBuyer" parameterType="string" resultMap="buyerMap">
+		WITH BUYERVIEW AS (
+			SELECT
+			    BUYER_ID,    BUYER_NAME,    BUYER_LGU,    BUYER_BANK,
+			    BUYER_BANKNO,    BUYER_BANKNAME,    BUYER_ZIP,    BUYER_ADD1,
+			    BUYER_ADD2,    BUYER_COMTEL,    BUYER_FAX,    BUYER_MAIL,
+			    BUYER_CHARGER,    BUYER_TELEXT
+			    , LPROD_NM
+			FROM    BUYER INNER JOIN LPROD ON (BUYER_LGU = LPROD_GU)
+			WHERE BUYER_ID = #{buyerId}
+		)
+		SELECT BUYERVIEW.*
+		    , PROD_ID, PROD_NAME, PROD_COST, PROD_PRICE
+		    , PROD_SALE, PROD_OUTLINE, PROD_MILEAGE
+		FROM BUYERVIEW LEFT OUTER JOIN PROD ON (BUYER_ID = PROD_BUYER)
+	</select>
+	<sql id="searchFrag">
+		FROM BUYER INNER JOIN LPROD ON (BUYER_LGU = LPROD_GU)
+		<where>
+			<if test="searchVO!=null and @org.apache.commons.lang3.StringUtils@isNotBlank(searchVO.searchWord)">
+				<choose>
+					<when test="'name'.equals(searchVO.searchType)">
+						BUYER_NAME LIKE '%'||#{searchVO.searchWord}||'%'
+					</when>
+					<when test="'address'.equals(searchVO.searchType)">
+						BUYER_ADD1 LIKE '%'||#{searchVO.searchWord}||'%'
+					</when>
+					<when test="'lgu'.equals(searchVO.searchType)">
+						LPROD_NM LIKE '%'||#{searchVO.searchWord}||'%'
+					</when>
+					<otherwise>
+						BUYER_NAME LIKE '%'||#{searchVO.searchWord}||'%'
+		    			OR BUYER_ADD1 LIKE '%'||#{searchVO.searchWord}||'%'
+		    			OR LPROD_NM LIKE '%'||#{searchVO.searchWord}||'%'
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</sql>
+	<select id="selectBuyerCount" resultType="int" parameterType="PagingVO">
+		SELECT COUNT(*)
+		<include refid="searchFrag" />
+	</select>
+	<select id="selectBuyerList" resultType="BuyerVO" parameterType="PagingVO">
+		SELECT B.*
+		FROM(
+			SELECT A.*, ROWNUM RNUM
+			FROM (
+				SELECT BUYER_ID, BUYER_NAME, BUYER_ADD1,
+					BUYER_COMTEL, BUYER_CHARGER, BUYER_MAIL,
+					BUYER_LGU
+					, LPROD_NM
+				<include refid="searchFrag" />
+				ORDER BY BUYER.ROWID DESC
+		) A ) B
+		<![CDATA[
+			WHERE RNUM >= #{startRow} AND RNUM <= #{endRow}
+		]]>
+	</select>
+	
+	<insert id="insertBuyer" parameterType="BuyerVO">
+		<selectKey keyProperty="buyerId" resultType="string" order="BEFORE">
+			SELECT #{buyerLgu}||LPAD(TO_NUMBER(NVL(SUBSTR( MAX(BUYER_ID), 5 ), '0')) + 1, 2, '0')
+			FROM BUYER
+			WHERE BUYER_LGU = #{buyerLgu}
+		</selectKey>
+		INSERT INTO BUYER (
+		    BUYER_ID,    BUYER_NAME,    BUYER_LGU,
+		    BUYER_BANK,    BUYER_BANKNO,    BUYER_BANKNAME,
+		    BUYER_ZIP,    BUYER_ADD1,    BUYER_ADD2,
+		    BUYER_COMTEL,    BUYER_FAX,    BUYER_MAIL,
+		    BUYER_CHARGER,    BUYER_TELEXT
+		) VALUES (
+		    #{buyerId,jdbcType=VARCHAR},    #{buyerName,jdbcType=VARCHAR},    #{buyerLgu,jdbcType=VARCHAR},
+		    #{buyerBank,jdbcType=VARCHAR},    #{buyerBankno,jdbcType=VARCHAR},    #{buyerBankname,jdbcType=VARCHAR},
+		    #{buyerZip,jdbcType=VARCHAR},    #{buyerAdd1,jdbcType=VARCHAR},    #{buyerAdd2,jdbcType=VARCHAR},
+		    #{buyerComtel,jdbcType=VARCHAR},    #{buyerFax,jdbcType=VARCHAR},    #{buyerMail,jdbcType=VARCHAR},
+		    #{buyerCharger,jdbcType=VARCHAR},    #{buyerTelext,jdbcType=VARCHAR}
+		)
+	</insert>
+	<update id="updateBuyer" parameterType="BuyerVO">
+		UPDATE buyer
+	    SET
+	    BUYER_NAME		=		#{buyerName,jdbcType=VARCHAR} ,
+	    BUYER_BANK		=		#{buyerBank,jdbcType=VARCHAR} ,
+	    BUYER_BANKNO	=		#{buyerBankno,jdbcType=VARCHAR} ,
+	    BUYER_BANKNAME	=		#{buyerBankname,jdbcType=VARCHAR} ,
+	    BUYER_ZIP		=		#{buyerZip,jdbcType=VARCHAR} ,
+	    BUYER_ADD1		=		#{buyerAdd1,jdbcType=VARCHAR} ,
+	    BUYER_ADD2		=		#{buyerAdd2,jdbcType=VARCHAR} ,
+	    BUYER_COMTEL	=		#{buyerComtel,jdbcType=VARCHAR} ,
+	    BUYER_FAX		=		#{buyerFax,jdbcType=VARCHAR} ,
+	    BUYER_MAIL		=		#{buyerMail,jdbcType=VARCHAR} ,
+	    BUYER_CHARGER	=		#{buyerCharger,jdbcType=VARCHAR} ,
+	    BUYER_TELEXT	=		#{buyerTelext,jdbcType=VARCHAR}
+		WHERE  buyer_id	=		#{buyerId}
+	</update>
+</mapper>

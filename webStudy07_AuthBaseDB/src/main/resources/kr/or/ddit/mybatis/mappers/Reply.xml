@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.board.dao.ReplyDAO">
+	<select id="selectTotalRecord" parameterType="PagingVO" resultType="int">
+		SELECT COUNT(*)
+		FROM FREEREPLY
+		WHERE BO_NO = #{detailSearch.boNo}
+	</select>
+	<select id="selectReplyList" parameterType="PagingVO" resultType="ReplyVO">
+		SELECT B.*
+		FROM (
+			SELECT A.*, ROWNUM RNUM 
+			FROM (
+				<![CDATA[
+				SELECT
+					REP_NO,		    REP_WRITER,		    REP_DATE,
+					REP_CONTENT,
+					LPAD('     ┗', 6*4*(LEVEL-1), '&nbsp;') || REP_CONTENT DISPLAY_CONTENT,		    
+				    BO_NO, REP_MAIL
+				    , REP_PARENT
+				FROM FREEREPLY
+				]]>
+				WHERE BO_NO = #{detailSearch.boNo}
+				START WITH REP_PARENT IS NULL
+				CONNECT BY PRIOR REP_NO = REP_PARENT
+				ORDER SIBLINGS BY REP_NO DESC
+			)  A
+		)  B
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	<insert id="insertReply" parameterType="ReplyVO">
+		<selectKey keyProperty="repNo" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(REP_NO), 0) + 1
+			FROM FREEREPLY
+		</selectKey>
+		INSERT INTO FREEREPLY
+		(
+			REP_NO, BO_NO,
+		    REP_CONTENT, REP_WRITER,
+		    REP_MAIL, REP_PASS,
+		    REP_DATE
+		    <if test="repParent neq null and repParent gt 0">
+		    	, REP_PARENT
+		    </if>
+	    )
+		VALUES
+		(
+			#{repNo,jdbcType=NUMERIC},
+			#{boNo,jdbcType=NUMERIC},
+			#{repContent,jdbcType=VARCHAR},
+			#{repWriter,jdbcType=VARCHAR},
+			#{repMail,jdbcType=VARCHAR},
+			#{repPass,jdbcType=VARCHAR},
+			SYSDATE
+			<if test="repParent neq null and repParent gt 0">
+		    	, #{repParent,jdbcType=NUMERIC}
+		    </if>
+		)
+	</insert>
+	<select id="selectRepPass" resultType="string" parameterType="int">
+		SELECT REP_PASS
+		FROM FREEREPLY
+		WHERE REP_NO = #{repNo}
+	</select>
+	<update id="updateReply" parameterType="ReplyVO">
+		UPDATE FREEREPLY
+		SET
+			REP_CONTENT = #{repContent}
+		WHERE REP_NO = #{repNo}
+	</update>
+<!-- 	계층 구조상의 덧글을 모두 지움. -->
+	<delete id="deleteReply" parameterType="ReplyVO">
+		DELETE FROM FREEREPLY 
+        WHERE REP_NO IN (
+            SELECT REP_NO 
+            FROM FREEREPLY
+            START WITH REP_NO = #{repNo}
+            CONNECT BY PRIOR REP_NO = REP_PARENT
+        )
+	</delete>
+</mapper>
