@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.board.dao.BoardDAO">
+	<sql id="searchFrag">
+		<where>
+			<if test="@org.apache.commons.lang3.StringUtils@isNotBlank(searchVO.searchWord)">
+				<choose>
+					<when test="searchVO.searchType eq 'title'">
+						INSTR(BO_TITLE, #{searchVO.searchWord}) > 0
+					</when>
+					<when test="searchVO.searchType eq 'writer'">
+						INSTR(BO_WRITER, #{searchVO.searchWord}) > 0
+					</when>
+					<when test="searchVO.searchType eq 'content'">
+						INSTR(BO_CONTENT, #{searchVO.searchWord}) > 0
+					</when>
+					<otherwise>
+						INSTR(BO_TITLE, #{searchVO.searchWord}) > 0
+						OR INSTR(BO_WRITER, #{searchVO.searchWord}) > 0
+						OR INSTR(BO_CONTENT, #{searchVO.searchWord}) > 0
+					</otherwise>
+				</choose>
+			</if>
+		</where>
+	</sql>
+	
+	<select id="selectTotalRecord" resultType="int" parameterType="PagingVO">
+		SELECT COUNT(*)
+		FROM FREEBOARD
+		<include refid="searchFrag" />
+	</select>
+	<select id="selectBoardList" parameterType="PagingVO" resultType="BoardVO">
+		SELECT B.*
+		FROM (
+			SELECT A.*, ROWNUM RNUM
+			FROM (
+				<![CDATA[
+				SELECT BO_NO 
+					, LPAD('   re:', (LEVEL-1) * 6, '&nbsp;') || BO_TITLE BO_TITLE
+				]]>	 
+				, BO_WRITER 
+				, TO_CHAR(BO_DATE, 'YYYY-MM-DD HH:MI') BO_DATE 
+				, BO_HIT, BO_REC
+				, (SELECT COUNT(*) FROM FREEREPLY R WHERE F.BO_NO = R.BO_NO) REP_CNT
+        		, (SELECT COUNT(*) FROM ATTATCH C WHERE F.BO_NO = C.BO_NO) ATCH_CNT
+				FROM FREEBOARD F
+				START WITH BO_PARENT IS NULL
+				CONNECT BY PRIOR BO_NO = BO_PARENT
+				<include refid="searchFrag" />
+				ORDER SIBLINGS BY BO_NO DESC
+			) A	
+		) B
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<resultMap type="BoardVO" id="boardMap" autoMapping="true">
+		<id property="boNo" column="NO"/>
+		<collection property="attatchList" ofType="AttatchVO" autoMapping="true" />
+	</resultMap>
+	
+	<select id="selectBoard" parameterType="int" resultMap="boardMap">
+		SELECT
+		    F.BO_NO NO,    BO_TITLE,    BO_WRITER,
+		    BO_IP,    BO_MAIL,    BO_PASS,
+		    BO_CONTENT,   
+		    TO_CHAR(BO_DATE, 'YYYY-MM-DD HH:MI') BO_DATE,    
+		    BO_REP,	BO_HIT,    BO_REC
+		    , ATT_NO, ATT_FILENAME, ATT_DOWNLOAD
+		    , ATT_SAVENAME, ATT_FANCYSIZE
+		FROM FREEBOARD F LEFT OUTER JOIN 	ATTATCH A
+			ON(F.BO_NO = A.BO_NO)
+		WHERE F.BO_NO = #{boNo}
+	</select>
+	
+	<update id="incrementCount" parameterType="map">
+		UPDATE FREEBOARD
+		SET
+		${incType} = ${incType} + 1
+		WHERE BO_NO = #{boNo}
+	</update>
+	
+	<insert id="insertBoard" parameterType="BoardVO">
+		<selectKey keyProperty="boNo" resultType="int" order="BEFORE">
+			SELECT FREEBOARD_SEQ.NEXTVAL
+			FROM DUAL
+		</selectKey>
+			INSERT INTO FREEBOARD (
+			    BO_NO,    BO_TITLE,
+			    BO_WRITER,    BO_IP,
+			    BO_MAIL,    BO_PASS,
+			    BO_CONTENT
+			    <if test="boParent neq null and boParent gt 0">
+			    , BO_PARENT
+			    </if>
+			) VALUES (
+			    #{boNo,jdbcType=NUMERIC},
+				#{boTitle,jdbcType=VARCHAR},
+				#{boWriter,jdbcType=VARCHAR},
+				#{boIp,jdbcType=VARCHAR},
+				#{boMail,jdbcType=VARCHAR},
+				#{boPass,jdbcType=VARCHAR},
+				#{boContent,jdbcType=CLOB}
+				<if test="boParent neq null and boParent gt 0">
+				, #{boParent,jdbcType=NUMERIC}
+				</if>
+			)
+	</insert>
+	<delete id="deleteBoard" parameterType="int">
+		MERGE INTO FREEBOARD F
+		USING (
+			SELECT BO_NO
+				, (SELECT COUNT(*) FROM FREEBOARD B WHERE A.BO_NO = B.BO_PARENT ) CHILDCNT
+			FROM FREEBOARD A
+		) C ON (F.BO_NO = #{boNo} AND F.BO_NO = C.BO_NO)
+		WHEN MATCHED THEN
+		UPDATE
+		SET
+		BO_TITLE = '해당 글은 삭제됨.', 
+		BO_CONTENT = NULL
+		DELETE
+		WHERE C.CHILDCNT = 0
+	</delete>
+	<update id="updateBoard" parameterType="BoardVO">
+		UPDATE FREEBOARD
+	    SET
+	    BO_TITLE = #{boTitle,jdbcType=VARCHAR},
+	    BO_MAIL = #{boMail,jdbcType=VARCHAR},
+	    BO_CONTENT = #{boContent,jdbcType=CLOB}
+		WHERE BO_NO = #{boNo,jdbcType=NUMERIC}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

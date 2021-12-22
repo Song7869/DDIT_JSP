@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+<!-- logging : log 기록 행위 -->
+<!-- log message -->
+<!-- layout : message 형식 -->
+<!-- appender : message 기록 매체 -->
+<!-- logger : message 기록자 -->
+<!-- level : logging event 등급 debug -> trace -> info -> warn -> error -> fatal -->
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} %-5level %logger{1.1.~.~} - %msg%n" />
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Logger name="kr.or.ddit" level="info" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="jdbc.sqltiming" level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Logger name="jdbc.resultsettable" level="debug" additivity="false">
+			<AppenderRef ref="Console" />
+		</Logger>
+		<Root level="error">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>

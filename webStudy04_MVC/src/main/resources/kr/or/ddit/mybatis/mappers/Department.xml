@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.employee.dao.DepartmentDAO">
+	<resultMap type="DepartmentVO" id="deptMap" autoMapping="true">
+		<id property="departmentId" column="DEPT_ID"/>
+		<collection property="empList" ofType="EmployeeVO" autoMapping="true" />
+	</resultMap>
+	<select id="selectDepartmentList" resultMap="deptMap">
+		SELECT A.DEPARTMENT_ID DEPT_ID, DEPARTMENT_NAME
+		, EMPLOYEE_ID, FIRST_NAME, LAST_NAME
+		FROM DEPARTMENT A LEFT OUTER JOIN EMPLOYEE B 
+		    ON(A.DEPARTMENT_ID = B.DEPARTMENT_ID)
+	</select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
+<configuration>
+	<properties resource="kr/or/ddit/db/dbInfo.properties" />
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	<typeAliases>
+		<package name="kr.or.ddit.vo"/>
+	</typeAliases>
+	<environments default="dev">
+		<environment id="dev">
+			<transactionManager type="JDBC" />
+			<dataSource type="POOLED">
+				<property name="driver" value="${driverClassName}"/>
+				<property name="url" value="${url}"/>
+				<property name="username" value="${user}"/>
+				<property name="password" value="${password}"/>
+				<property name="poolMaximumActiveConnections" value="${maxTotal}"/>
+				<property name="poolTimeToWait" value="${maxWait}"/>
+			</dataSource>
+		</environment>
+	</environments>
+	
+	<mappers>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Member.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Prod.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Others.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Employee.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Department.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Board.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Reply.xml"/>
+		<mapper resource="kr/or/ddit/mybatis/mappers/Attatch.xml"/>
+	</mappers>
+</configuration>

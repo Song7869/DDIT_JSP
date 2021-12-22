@@ -1,0 +1,15 @@
+<html>
+<style>
+h4{background-color : lightgreen;}
+</style>
+<body>
+<h4>동적 타이틀 : %title%</h4>
+<h4>당신의 접속 시간은 %now% 입니다. </h4>
+<h4>현재 클라이언트의 시간은 <span id="now"></span> 입니다.</h4>
+<script type="text/javascript">
+	var clientNow = new Date();
+	var nowTag = document.getElementById("now");
+	nowTag.innerHTML = clientNow;
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.board.dao.ReplyDAO">
+	<select id="selectTotalRecord" parameterType="PagingVO" resultType="int">
+		SELECT COUNT(*)
+		FROM FREEREPLY
+		WHERE BO_NO = #{detailSearch.boNo}
+	</select>
+	<select id="selectReplyList" parameterType="PagingVO" resultType="ReplyVO">
+		SELECT B.*
+		FROM(
+			SELECT A.*, ROWNUM RNUM 
+			FROM (
+				SELECT
+					REP_NO,  BO_NO, 
+					REP_CONTENT,  REP_WRITER, 
+					REP_MAIL,  REP_PASS, 
+					TO_CHAR(REP_DATE, 'YYYY-MM-DD') REP_DATE
+				FROM FREEREPLY
+				WHERE BO_NO = #{detailSearch.boNo}
+				ORDER BY REP_NO DESC
+			) A
+		) B
+		WHERE RNUM BETWEEN #{startRow} AND #{endRow} 
+	</select>
+	<insert id="insertReply" parameterType="PagingVO">
+		<selectKey keyProperty="repNo" resultType="int" order="BEFORE">
+			SELECT NVL(MAX(REP_NO), 0) + 1
+			FROM FREEREPLY
+		</selectKey>
+		INSERT INTO FREEREPLY
+		(
+			rep_no, bo_no,
+		    rep_content, rep_writer,
+		    rep_mail, rep_pass,
+		    rep_date
+	    )
+		VALUES
+		(
+			#{repNo,jdbcType=NUMERIC},
+			#{boNo,jdbcType=NUMERIC},
+			#{repContent,jdbcType=VARCHAR},
+			#{repWriter,jdbcType=VARCHAR},
+			#{repMail,jdbcType=VARCHAR},
+			#{repPass,jdbcType=VARCHAR},
+			SYSDATE
+		)
+	</insert>
+</mapper>

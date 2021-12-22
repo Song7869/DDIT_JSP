@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.employee.dao.EmployeeDAO">
+	<select id="selectTotalRecord" parameterType="PagingVO" resultType="int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+	</select>
+	<select id="selectEmployeeList" parameterType="PagingVO" resultType="EmployeeVO">
+		SELECT E.*
+		FROM (
+		    SELECT D.*, ROWNUM RNUM
+		    FROM (
+		        SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, 
+		            HIRE_DATE, A.MANAGER_ID , 
+		            (SELECT COUNT(*) FROM EMPLOYEE C WHERE A.EMPLOYEE_ID = C.MANAGER_ID) CHILD_COUNT
+		            , B.DEPARTMENT_ID "department.departmentId"
+		            , DEPARTMENT_NAME "department.departmentName"
+		            , LOCATION_ID  "department.locationId"
+		        FROM EMPLOYEE A LEFT OUTER JOIN DEPARTMENT B 
+		            ON (A.DEPARTMENT_ID = B.DEPARTMENT_ID)
+		        <where>
+		        	<choose>
+		        		<when test="pagingVO neq null and pagingVO.detailSearch neq null and pagingVO.detailSearch.managerId gt 0">
+		        			A.MANAGER_ID = #{pagingVO.detailSearch.managerId}
+		        		</when>
+		        		<when test="pagingVO neq null and pagingVO.detailSearch neq null">
+		        			A.MANAGER_ID IS NULL
+		        		</when>
+		        		<otherwise>
+		        			1=1
+		        		</otherwise>
+		        	</choose>
+		        </where>    
+		        ORDER BY HIRE_DATE ASC
+		    ) D
+		) E
+		<where>
+			<if test="pagingVO neq null and pagingVO.startRow gt 0 and pagingVO.endRow gt 0">
+				<![CDATA[
+				RNUM >= #{pagingVO.startRow} AND RNUM <= #{pagingVO.endRow}
+				]]>
+			</if>
+		</where>
+	</select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
