@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd">
+
+	<context:component-scan base-package="kr.or.ddit" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+	<mvc:annotation-driven></mvc:annotation-driven>
+	
+	<bean id="IRVR" class="org.springframework.web.servlet.view.InternalResourceViewResolver" 
+		p:prefix="/WEB-INF/views/"
+		p:suffix=".jsp"
+	/>
+	
+	<!-- <mvc:default-servlet-handler/> -->
+	<mvc:resources location="/resources/" mapping="/resources/**" cache-period="0"></mvc:resources>
+	
+	
+	
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+	 	p:maxUploadSize="#{100*1024*1024}"
+	 	p:maxUploadSizePerFile="#{2*1024*1024}"
+	 	p:maxInMemorySize="#{10*1024}"
+	/>
+	
+	
+	<mvc:view-controller path="/dummy/ajaxview" view-name="dummy/ajaxView"/>
+	
+	
+</beans>
