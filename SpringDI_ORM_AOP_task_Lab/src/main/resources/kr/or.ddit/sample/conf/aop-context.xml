@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+	
+	<!-- 타겟 -->
+	<bean class="kr.or.ddit.sample.dao.SampleDAO_Oracle" id="sampleDAO"/>	
+	<bean class="kr.or.ddit.sample.service.SampleServiceImpl" id="sampleService"
+		p:daoaa-ref = "sampleDAO"
+	/>
+	
+	
+	<!-- 어드바이스 (어드바이스 + 포인트컷 => 어스펙트)-->
+	<bean class="kr.or.ddit.sample.advice.LoggingAdvice" id="loggingAdvice" />
+
+	<aop:aspectj-autoproxy />
+
+	<!-- 어스펙트 -->
+<!-- 	<aop:config>
+		<aop:pointcut expression="execution(* kr.or.ddit.sample.service.*.*(..))" id="pointcut"/>
+		<aop:aspect ref="loggingAdvice">
+			<aop:before method="beforeAdvice" pointcut-ref="pointcut"/>
+			<aop:after-returning method="afterReturning" pointcut-ref="pointcut" returning="retValue"/>
+			<aop:around method="around" pointcut-ref="pointcut" />
+		</aop:aspect>
+	</aop:config> -->
+
+</beans>

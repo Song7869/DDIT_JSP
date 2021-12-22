@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+	<!-- 
+	컨테이너에 의해 자동 등록 될 수 있는 어노테이션의 종류
+	@Component : 어느 한곳에 소속되지 못하고, 의미가 애매한 부분
+	@Repository : 데이터가 저장된 곳에 접근하기 위한 부분
+	@Service : B.L.L 같이 service 를 하는 부분
+	@Controller : 컨트롤러 + 핸들러 매핑을 위한 표식 -> 그냥은 안쓰이겠지
+	@Configuration : 메타데이터를 사용하기위한 Configuration 파일에 사용
+	
+	@ControllerAdvice : 외부 어플리케이션에서 사용
+	@RestController : 웹용
+	@RestControllerAdvice : 웹용
+	
+	
+	
+	자동 등록된 Bean들간 의존관계 형성에 사용.
+	@Required : 특정한 주입구조가 반드시 실행되어야 한다. -> Setter Injection 에서 사용
+	@AutoWired / @Inject(**) : type을 기준으로 주입 빈 검색.
+	@Resource : type, name 여러가지 주입 조건을 조합해서 사용 가능
+	
+	//	@Autowired // 만약 이 아래 bean이 여러개인 경우 -> 어떤 bean을 사용할지 구분을 해주지 못함 -> 매우 위험한 방법임
+	//	@Resource(name="sampleDAO_Oracle") //스프링 밖에서도 사용이 가능, 더 POJO 함
+	@Inject //스프링 밖에서도 사용이 가능, 더 POJO 함
+	@Required //: 반드시 이녀석은 한번은 호출 되어야해 라고 표시해줌 -> autowired를 빼먹지 말고 쓰라고 표시해주는 셈
+	-->
+	
+	<!-- <context:annotation-config /> -->
+	
+	<!-- component-scan 안에 이미 annotation-config가 들어있어! -->
+	<context:component-scan base-package="kr.or.ddit.sample" use-default-filters="true">
+		<context:exclude-filter type="annotation" expression="org.springframework.context.annotation.Configuration"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+	
+
+</beans>

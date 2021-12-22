@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+	default-init-method="init" default-destroy-method="destroy"
+	>
+
+<!-- 	스프링(DI, IoC) 컨테이너 사용 단계 -->
+<!-- 	1. spring-context 의존성 추가(pom.xml) -->
+<!-- 	2. spring bean configuration file 생성(bean metadata file) -->
+<!-- 		1) bean(컨테이너에 의해 관리되는 객체) 등록 -->
+<!-- 		2) Dependency Injection을 이용해 등록된 빈들간의 의존관계 형성 -->
+<!-- 		   - constructor injection : constructor-arg, c -->
+<!-- 		   - setter injection : property, p  -->
+<!-- 	3. 어플리케이션의 엔트리 포인트에서 컨테이너(ApplicationContext) 객체 생성 -->
+<!-- 	4. 컨테이너 객체로부터 필요 객체 주입받아 사용(getBean).	    -->
+		
+<!-- 	컨테이너의 빈 관리 특성 -->
+<!-- 	1. 특별한 설정(lazy-init)이 없는 한 컨테이너는 모든 빈들을 초기화시에 일시 생성하고 의존관계를 형성함. -->
+<!-- 	2. 특별한 설정(scope)이 없는 한 모든 빈은 싱글턴의 형태로 관리됨. -->
+<!-- 			- singleton : 빈을 대상으로 하나의 객체만이 관리됨. -->
+<!-- 			- prototype(+lazy) : 동일빈일지라도 매번 주입시마다 새로운 객체가 생성됨. -->
+<!-- 			- request/session : 웹 어플리케이션에서 사용됨. -->
+<!-- 	3. 생성되는 빈들간의 구체적인 순서를 결정할때, depends-on 속성이 사용됨. -->
+<!-- 	4. 빈들의 생명주기 callback 정의 (init/destroy-method) -->
+<!-- 		***** init-method 는 해당 빈을 대상으로 모든 의존주입이 종료된 후 호출됨. -->
+
+		<bean id="sampleDAO_Oracle" class="kr.or.ddit.sample.dao.SampleDAO_Oracle" />
+		<bean id="sampleDAO_Mysql" class="kr.or.ddit.sample.dao.SampleDAO_Mysql" />
+		
+		<bean id="sampleService1" class="kr.or.ddit.sample.service.SampleServiceImpl"
+			c:dao-ref="sampleDAO_Oracle"
+		/>
+<!-- 			<constructor-arg name="dao" ref="sampleDAO_Oracle" /> -->
+<!-- 		</bean> -->
+		
+		<bean id="sampleService2" class="kr.or.ddit.sample.service.SampleServiceImpl"
+			p:daoaa-ref="sampleDAO_Mysql"
+		/>
+<!-- 			<property name="daoaa" ref="sampleDAO_Mysql" /> -->
+<!-- 		</bean> -->
+</beans>
+
+
+
+
+
+
+
+
+

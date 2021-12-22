@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+		
+<!-- 스키마 : beans, ,context, c, p, util-->
+<!-- beans에는 콜론이 안 붙음 : 기본 -->
+<!-- scope 생략하면 기본적으로 싱글톤 -->
+	<util:list id="list" list-class="java.util.LinkedList" value-type="java.util.Date" scope="prototype">
+		<bean class="java.util.Date" />
+		<bean class="java.util.Date" />
+		<bean class="java.util.Date" />
+	</util:list>
+	
+	<util:set id="set" >
+		<bean class="kr.or.ddit.vo.VariousDIVO" />
+		<bean class="java.util.Date" />
+	</util:set>
+
+	<util:map id="map">
+		<entry>
+			<key>
+				<bean class="kr.or.ddit.sample.dao.SampleDAO_Oracle"></bean>
+			</key>
+			<value>text</value>
+		</entry>
+		<entry key="key2">
+			<bean class="kr.or.ddit.sample.dao.SampleDAO_Mysql"></bean>
+		</entry>
+	</util:map>
+	
+	<!-- property 로 값을 주면, 서버가 끝이나도 사라지지 않는다. -->
+	<util:properties id="sampleProps" location="classpath:kr/or.ddit/dbInfo.properties">
+		<prop key="prop1">value1</prop>
+		<prop key="prop2">value2</prop>
+	</util:properties>
+	
+	<bean id="stringArray" class="kr.or.ddit.vo.StringArrayFactoryBean" />
+	
+	<bean id="cVO3" class="kr.or.ddit.vo.CollectionDIVO"
+		p:dateList-ref="list" 
+		p:sampleSet-ref="set"
+		p:sampleMap-ref="map"
+		p:sampleProps-ref="sampleProps"
+		p:array-ref="stringArray"
+	/>
+	
+	<bean id="cVO2" class="kr.or.ddit.vo.CollectionDIVO"
+		c:dateList-ref="list" 
+		c:sampleSet-ref="set"
+		c:sampleMap-ref="map"
+		c:sampleProps-ref="sampleProps"
+		c:array-ref="stringArray"
+	/>
+
+	<bean id="cVO1" class="kr.or.ddit.vo.CollectionDIVO">
+		<constructor-arg name="dateList">
+			<list>
+				<bean class="java.util.Date"></bean>
+				<bean class="java.util.Date"></bean>
+				<bean class="java.util.Date"></bean>
+			</list>
+		</constructor-arg>
+		
+		<constructor-arg name="sampleSet">
+			<set>
+				<bean class="kr.or.ddit.vo.VariousDIVO"></bean>
+				<bean class="java.util.Date"></bean>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="sampleMap">
+			<map>
+				<entry>
+					<key>
+						<bean class="kr.or.ddit.sample.dao.SampleDAO_Oracle"></bean>
+					</key>
+					<value>text</value>
+				</entry>
+				<entry key="key2">
+					<bean class="kr.or.ddit.sample.dao.SampleDAO_Mysql"></bean>
+				</entry>
+			</map>
+		</constructor-arg>
+		<constructor-arg name="sampleProps">
+			<props>
+				<prop key="prop1">value1</prop>
+				<prop key="prop2">value2</prop>
+			</props>
+		</constructor-arg>
+		<constructor-arg name="array">
+			<array>
+				<value>element1</value>
+				<value>element2</value>
+			</array>
+		</constructor-arg>
+	</bean>
+
+</beans>

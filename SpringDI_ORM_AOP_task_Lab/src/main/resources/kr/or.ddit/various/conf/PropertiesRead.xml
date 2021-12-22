@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd">
+	
+	
+	<context:property-placeholder location="classpath:kr/or.ddit/dbInfo.properties"/>
+	<!-- 이방식이면 ID가 없어서 아래에서 #{} 안에 아이디를 넣을 수가 없어  그래서 ${} 이걸 써 -->
+	<!-- placeholder 는 언어(language)가 아니라서 연산 수행이 불가능하다. -->
+	<!-- placeholder 방식을 사용하면, 기존 property에 뭐가 들어있는지 모르는데, 이름이 겹치면 둘중 하나가 사라지니까 매우 위험하다 -->
+	<!-- maindb. 이런식으로 property 이름이 겹치지 않게하며, 불러오는 주소도한 ['maindb.'] 로 [''] 로 묶어줘야 한다. -->
+	
+	<bean id="info3" class="kr.or.ddit.vo.DBInfoVO"
+		p:driverClassName="${maindb.driverClassName}"
+		p:user="${maindb.user}"
+		p:initialSize="${maindb.initialSize}"
+		p:maxTotal="${maindb.maxTotal}"
+		p:test_3="${maindb.test-3}"
+	/>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<util:properties id="dbInfo" location="classpath:kr/or.ddit/dbInfo.properties" />
+	
+	<bean id="info1" class="kr.or.ddit.vo.DBInfoVO"
+		p:driverClassName="#{dbInfo['maindb.driverClassName']}" 
+		p:url="#{dbInfo['maindb.url']}"
+		p:user="#{dbInfo.'maindb.user'] + 'test'}"
+		p:password="#{dbInfo.'maindb.password']}"
+		p:initialSize="#{dbInfo['maindb.initialSize'] * 3}"
+		p:maxTotal="#{dbInfo['maindb.maxTotal']}"
+		p:maxWait="#{dbInfo['maindb.maxWait']}"
+	/>
+	
+	<bean id="info2" class="kr.or.ddit.vo.DBInfoVO" 
+		c:driverClassName="#{info1.driverClassName}"
+		c:url="#{info1['url']}"
+		c:user="#{info1['user']}"
+		c:password="#{info1['password']}"
+		c:initialSize="#{info1['initialSize'] * 3}"
+		c:maxTotal="#{info1['maxTotal'] + 5}"
+		c:maxWait="#{info1['maxWait']}"
+		c:test_3="#{dbInfo['test-3']}"
+	/>
+	
+	
+</beans>

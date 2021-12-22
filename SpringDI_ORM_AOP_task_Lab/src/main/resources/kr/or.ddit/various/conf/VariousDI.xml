@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<bean  scope="prototype" id="now" class="java.util.Date" />
+
+	<bean id="vo1" class="kr.or.ddit.vo.VariousDIVO" 
+		c:bool="true"
+		c:number="23"
+		c:ch="A"
+		c:str="텍스트"
+		c:date-ref="now"
+		c:res="classpath:log4j2.xml"
+	/>
+	
+	<bean id="vo2" class="kr.or.ddit.vo.VariousDIVO" 
+		p:bool="true"
+		p:number="23"
+		p:ch="A"
+		p:str="텍스트"
+		p:date-ref="now"
+		p:res="classpath:log4j2.xml"
+		p:service-ref="sampleService2"
+	/>
+	
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
